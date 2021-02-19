@@ -1,0 +1,840 @@
+---
+  swagger: "2.0"
+  info:
+    version: 1.0.0
+    title: partD-api
+    description: Medicare Provider Project partD micro service
+  consumes:
+    - application/json
+  produces:
+    - application/json
+  basePath: /mppAPI
+  schemes:
+    - http
+  securityDefinitions:
+    role_customer:
+      type: apiKey
+      in: header
+      name: Authorization
+  paths:
+    /authenticate:
+      post:
+        tags:
+          - authenticate
+        summary: authenticate user
+        description: authenticate user
+        parameters:
+          - in: body
+            name: user
+            description: google oauth user
+            required: true
+            schema:
+              $ref: '#/definitions/OAuthUser'
+        responses:
+          '200':
+            description: Post successful response
+            schema:
+              $ref: '#/definitions/ReturnCode'
+          "400":
+            description: Bad Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "401":
+            description: Unauthorized
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "404":
+            description: Not Found
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "500":
+            description: Internal Server Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          default:
+            description: Unexpected Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+    /logout:
+      post:
+        tags:
+          - logout
+        security:
+          - role_customer: []
+        summary: logs the user out
+        description: logs user out by expiring cookie
+        responses:
+          '200':
+            description: Logout successful
+            schema:
+              $ref: '#/definitions/ReturnCode'
+          "400":
+            description: Bad Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "404":
+            description: Not Found
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          '500':
+            description: Internal Server Error
+            schema:
+              $ref: '#/definitions/ReturnCode'
+          default:
+            description: Logout unexpected error response
+            schema:
+              $ref: '#/definitions/ReturnCode'
+    /login:
+      post:
+        tags:
+          - login
+        summary: user login
+        description: log user in and create token
+        parameters:
+          - in: body
+            name: login
+            description: users login values
+            required: true
+            schema:
+              $ref: '#/definitions/Login'
+        responses:
+          '200':
+            description: Post successful response
+            schema:
+              $ref: '#/definitions/User'
+          "400":
+            description: Bad Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "401":
+            description: Unauthorized
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "404":
+            description: Not Found
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "500":
+            description: Internal Server Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          default:
+            description: Unexpected Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+    /ready:
+      get:
+        tags:
+          - ready
+        summary: verify that the API is running and ready to accept requests
+        responses:
+          "200":
+            description: Post successful response
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "500":
+            description: Internal Server Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          default:
+            description: Login unexpected error response
+            schema:
+              $ref: "#/definitions/ReturnCode"
+    /aggregate:
+      post:
+        tags:
+          - aggregate
+        # security:
+        #   - role_customer: []
+        summary: endpoint for aggregate queries
+        description: |
+          Endpoint accepts a series of query objects to be performed in an aggregate array
+        parameters:
+          - name: aggregate
+            description: query objects to perform on collection
+            in: body
+            required: true
+            schema:
+              $ref: "#/definitions/Aggregate"
+        responses:
+          "200":
+            description: Successful Request
+            schema:
+              $ref: "#/definitions/AggregateResult"
+          "400":
+            description: Bad Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "404":
+            description: Not Found
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "500":
+            description: Internal Server Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          default:
+            description: Unexpected Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+    /mppaggregate:
+      post:
+        tags:
+          - mppAggregate
+        # security:
+        #   - role_customer: []
+        summary: endpoint for predefined aggregate queries
+        description: |
+          Endpoint accepts a series of query objects to be performed in an aggregate array
+        parameters:
+          - name: mppAggregate
+            description: query objects to perform on collection
+            in: body
+            required: true
+            schema:
+              $ref: "#/definitions/MppAggregate"
+        responses:
+          "200":
+            description: Successful Request
+            schema:
+              $ref: "#/definitions/MppAggregateResult"
+          "400":
+            description: Bad Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "404":
+            description: Not Found
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "500":
+            description: Internal Server Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          default:
+            description: Unexpected Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+    /findsummary:
+      post:
+        tags:
+          - findsummary
+        # security:
+        #   - role_customer: []
+        summary: endpoint for find queries in PartD summary
+        description: Accepts find parameters for query and returns query results
+        parameters:
+          - name: findsummary
+            description: query objects include the filter, filter options, year, return fields
+            in: body
+            required: true
+            schema:
+              $ref: "#/definitions/FindSummary"
+        responses:
+          "200":
+            description: Successful Request
+            schema:
+              $ref: "#/definitions/FindResult"
+          "400":
+            description: Bad Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "404":
+            description: Not Found
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "500":
+            description: Internal Server Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          default:
+            description: Unexpected Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+    /register:
+      post:
+        tags:
+          - register
+        summary: create a user
+        description: Endpoint accepts an email and password to be saved into db if not already existing
+        parameters:
+          - name: userInfo
+            description: insert user
+            in: body
+            required: true
+            schema:
+              $ref: "#/definitions/Register"
+        responses:
+          "200":
+            description: Successful Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "400":
+            description: Bad Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "404":
+            description: Not Found
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "500":
+            description: Internal Server Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          default:
+            description: Unexpected Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+    /change_password:
+      post:
+        tags:
+          - change_password
+        security:
+          - role_customer: []
+        summary: change a user's password
+        description: Endpoint accepts a user's email, old password, and new password to replace old password in db
+        parameters:
+          - name: change_password
+            in: body
+            required: true
+            schema:
+              $ref: "#/definitions/ChangePassword"
+        responses:
+          "200":
+            description: Successful Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "400":
+            description: Bad Request
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "404":
+            description: Not Found
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          "500":
+            description: Internal Server Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+          default:
+            description: Unexpected Error
+            schema:
+              $ref: "#/definitions/ReturnCode"
+  definitions:
+    ReturnCode:
+      type: object
+      properties:
+        code:
+          type: integer
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+    MatchParams:
+      type: object
+      additionalProperties: {}
+    ProjectParams:
+      type: object
+      additionalProperties: {}
+    SortParams:
+      type: object
+      additionalProperties: {}
+    OperationObjectParams:
+      type: object
+      additionalProperties: {}
+    GroupParams:
+      type: object
+      required:
+        - matchOn
+        - operationName
+        - operation
+      properties:
+        matchOn:
+          type: array
+          items:
+            type: string
+        operationName:
+          type: string
+        operation:
+          type: string
+        operationTarget:
+          type: string
+        operationTargets:
+          type: array
+          items:
+            type: string
+        operationObject:
+          $ref: "#/definitions/OperationObjectParams"
+    LookupParams:
+      type: object
+      required:
+        - lookupCollection
+        - lookupYear
+        - lookupAs
+        - projectParams
+      properties:
+        lookupCollection:
+          type: string
+        lookupYear:
+          type: string
+        lookupOn:
+          type: string
+        lookupOnArray:
+          type: array
+          items:
+            type: string
+        lookupAs:
+          type: string
+        projectParams:
+          $ref: "#/definitions/ProjectParams"
+    QueryObject:
+      type: object
+      properties:
+        matchQuery:
+          $ref: "#/definitions/MatchParams"
+        projectQuery:
+          $ref: "#/definitions/ProjectParams"
+        sortQuery:
+          $ref: "#/definitions/SortParams"
+        groupQuery:
+          $ref: "#/definitions/GroupParams"
+        lookupQuery:
+          $ref: "#/definitions/LookupParams"
+    Aggregate:
+      type: object
+      required:
+        - collection
+        - year
+        - aggregate
+        - mapFlag
+      properties:
+        collection:
+          type: string
+        year:
+          type: string
+        mapFlag:
+          type: boolean
+        page:
+          type: integer
+        aggregate:
+          type: array
+          items:
+            $ref: "#/definitions/QueryObject"
+    AggregateResult:
+      type: object
+    MppAggregate:
+      type: object
+      required:
+        - dataSet
+        - subject
+        - regionType
+        - region
+        - year
+      properties:
+        dataSet:
+          type: string
+        subject:
+          type: string
+        specialty:
+          type: string
+        regionType:
+          type: string
+        region:
+          type: string
+        year:
+          type: string
+        drugName:
+          type: string
+        npi:
+          type: string
+        city:
+          type: string
+        mapFlag:
+          type: boolean
+        page:
+          type: integer
+    MppAggregateResult:
+      type: object
+      properties:
+        Opioids:
+          type: array
+          items:
+            $ref: "#/definitions/Opioids"
+        Demographics:
+          type: array
+          items:
+            $ref: "#/definitions/Demographics"
+        Antibiotics:
+          type: array
+          items:
+            $ref: "#/definitions/Antibiotics"
+        Gender:
+          type: array
+          items:
+            $ref: "#/definitions/Gender"
+        CompareDrugCosts:
+          type: array
+          items:
+            $ref: "#/definitions/CompareDrugCosts"
+        PhysicianDrugList:
+          type: array
+          items:
+            $ref: "#/definitions/PhysicianDrugList"
+        LisNonlis:
+          type: array
+          items:
+            $ref: "#/definitions/LisNonlis"
+    # PdpDrug:
+    #   type: object
+    #   properties:
+    #     count:
+    #       type: integer
+    #     cost:
+    #       type: integer
+    Opioids:
+      type: object
+      properties:
+        id:
+          type: string
+        laCount:
+          type: integer
+        count:
+          type: integer
+        prescriberRate:
+          type: number
+        laPrescriberRate:
+          type: number
+        geo:
+          type: object
+    LisNonlis:
+      type: object
+      properties:
+        total_claims:
+          type: integer
+        total_lis_claims:
+          type: integer
+        total_nonlis_claims:
+          type: integer
+        average_lis_claims:
+          type: integer
+        average_nonlis_claims:
+          type: integer
+        total_drug_costs:
+          type: number
+        total_lis_drug_costs:
+          type: number
+        total_nonlis_drug_costs:
+          type: number
+        average_lis_drug_costs:
+          type: number
+        average_nonlis_drug_costs:
+          type: number
+        geo:
+          type: object
+    # NonLis:
+    #   type: object
+    #   properties:
+    #     count:
+    #       type: integer
+    #     cost:
+    #       type: integer
+    #     claims:
+    #       type: integer
+    Antibiotics:
+      type: object
+      properties:
+        count:
+          type: integer
+        cost:
+          type: integer
+        ceftazidime:
+          type: boolean
+        geo:
+          type: object
+    DrugListing:
+      type: object
+      properties:
+        drug_name:
+          type: string
+        cost_per_claim:
+          type: integer
+        generic_name:
+          type: string
+        geo:
+          type: object
+    PhysicianDrugList:
+      type: object
+      properties:
+        npi:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        street:
+          type: string
+        coordinates:
+          type: array
+          items: 
+            type: number
+        specialty:
+          type: string
+        totalClaimCountNum:
+          type: integer
+        brandClaimCountNum:
+          type: integer
+        genericClaimCountNum:
+          type: integer
+        brandNamePercent:
+          type: number
+        totalDrugCostNum:
+          type: number
+        physicianDrugList:
+          type: array
+          items:
+            $ref: "#/definitions/DrugListing"
+    CompareDrugCosts:
+      type: object
+      properties:
+        npi:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        coordinates:
+          type: array
+          items:
+            type: number
+        last_org_name:
+          type: string
+        first_name:
+          type: string
+        drug_name:
+          type: string
+        generic_name:
+          type: string
+        cost_per_claim:
+          type: number
+        physician_address:
+          type: array
+          items:
+            $ref: "#/definitions/PhysicianAddress"
+    PhysicianAddress:
+      type: object
+      properties:
+        npi: 
+          type: string
+        street1: 
+          type: string
+        coordinates:
+          type: array
+          items:
+            type: number
+    # Medicaire:
+    #   type: object
+    #   properties:
+    #     cost:
+    #       type: integer
+    Demographics:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        whiteCount:
+          type: integer
+        blackCount:
+          type: integer
+        asianCount:
+          type: integer
+        hispanicCount:
+          type: integer
+        natIndCount:
+          type: integer
+        otherCount:
+          type: integer
+        geo:
+          type: object
+    Gender:
+      type: object
+      properties:
+        npi:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        street:
+          type: string
+        coordinates:
+          type: array
+          items: 
+            type: number
+        specialty:
+          type: string
+        bene_male_count_num:
+          type: integer
+        bene_female_count_num:
+          type: integer
+        total_bene_count_num:
+          type: integer
+        male_percentage:
+          type: number
+        female_percentage:
+          type: number
+    FindSummary:
+      type: object
+      required:
+        - limits
+        - sortOrder
+        - year
+        - dataSet
+        - collection
+      properties:
+        find:
+          type: array
+          items:
+            type: object
+            properties:
+              Field:
+                type: string
+                description: The field in the DB to filter
+              Value:
+                type: string
+                description: The value in the DB to filter
+        limits:
+          type: integer
+          description: number of results to return
+          minimum: 1
+          maximum: 100
+        sortType:
+          type: string
+          description: The sort field
+        sortOrder:
+          type: integer
+          format: int64
+          description: Sort order is -1, 1 or 0 for not sort
+          minimum: -1
+          maximum: 1
+        year:
+          type: integer
+          description: The year of results
+          minimum: 2013
+          maximum: 2017
+        output:
+          type: array
+          items:
+            type: string
+            description: The field to return
+        dataSet:
+          type: string
+          description: Which dataset to query
+        subDataSet:
+          type: string
+          description: Category of dataset
+        collection:
+          type: string
+          description: Must be either Detail or summary
+          pattern: "^(Detail|Summary)$"
+        mapFlag:
+          type: boolean
+    FindResult:
+      type: object
+      properties:
+        PartASummaryInpatient:
+          $ref: "#/definitions/FindObject"
+        PartADetailInpatient:
+          $ref: "#/definitions/FindObject"
+        PartASummaryOutpatient:
+          $ref: "#/definitions/FindObject"
+        PartADetailOutpatient:
+          $ref: "#/definitions/FindObject"
+        PartBSummary:
+          $ref: "#/definitions/FindObject"
+        PartBDetail:
+          $ref: "#/definitions/FindObject"
+        PartDSummary:
+          $ref: "#/definitions/FindObject"
+        PartDDetail:
+          $ref: "#/definitions/FindObject"
+        DMEPOSSummary:
+          $ref: "#/definitions/FindObject"
+        DMEPOSDetail:
+          $ref: "#/definitions/FindObject"
+    FindObject:
+      type: array
+      items:
+        type: object
+    Login:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    Register:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        userID:
+          type: string
+    User:
+      type: object
+      properties:
+        userID:
+          type: string
+        token:
+          type: string
+        expiry:
+          type: string
+          format: date-time
+        email:
+          type: string
+        password:
+          type: string
+    ChangePassword:
+      type: object
+      required:
+        - email
+        - password
+        - newPassword
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        newPassword:
+          type: string
+        oldPasswords:
+          type: array
+          items:
+            type: string
+    # Users:
+    #   type: array
+    #   items:
+    #     $ref: '#/definitions/User'
+    OAuthUser:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+    # OAuthUsers:
+    #   type: array
+    #   items:
+    #     $ref: '#/definitions/OAuthUser'
